@@ -230,7 +230,7 @@ export default defineComponent({
       if (
         !props.showInAttachedElement &&
         props.preventScrollThrough &&
-        isVisible.value &&
+        props.visible &&
         (isMounted.value || !props.lazy)
       ) {
         if (!styleEl.value) {
@@ -247,7 +247,6 @@ export default defineComponent({
       (value) => {
         if (isServer) return;
         if (value) {
-          addStyleElToHead();
           props.onBeforeOpen?.();
         } else {
           clearStyleEl();
@@ -255,6 +254,7 @@ export default defineComponent({
         }
 
         updateVisibleState(value);
+        if (value) addStyleElToHead();
       },
       { immediate: true },
     );

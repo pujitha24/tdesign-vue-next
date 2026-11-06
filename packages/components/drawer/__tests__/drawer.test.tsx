@@ -1030,4 +1030,41 @@ describe('Drawer', () => {
       w.unmount();
     });
   });
+
+  describe('preventScrollThrough', () => {
+    beforeEach(() => {
+      document.head.querySelectorAll('style[data-id^="td_drawer_"]').forEach((el) => el.remove());
+    });
+
+    const lockStyle = () =>
+      Array.from(document.head.querySelectorAll('style')).find((el) => el.dataset.id?.startsWith('td_drawer_'));
+
+    it('injects scroll lock style when opened and removes it after closing', async () => {
+      const wrapper = mount(Drawer, { props: { visible: false, attach: 'body' } });
+      await nextTick();
+      expect(lockStyle()).toBeUndefined();
+
+      await wrapper.setProps({ visible: true });
+      expect(lockStyle()?.innerHTML).toContain('overflow-y: hidden');
+
+      await wrapper.setProps({ visible: false });
+      vi.advanceTimersByTime(200);
+      expect(lockStyle()).toBeUndefined();
+      wrapper.unmount();
+    });
+
+    it('injects scroll lock style when initially visible', async () => {
+      const wrapper = mount(Drawer, { props: { visible: true, attach: 'body' } });
+      await nextTick();
+      expect(lockStyle()).toBeDefined();
+      wrapper.unmount();
+    });
+
+    it('does not inject style when preventScrollThrough is false', async () => {
+      const wrapper = mount(Drawer, { props: { visible: false, preventScrollThrough: false, attach: 'body' } });
+      await wrapper.setProps({ visible: true });
+      expect(lockStyle()).toBeUndefined();
+      wrapper.unmount();
+    });
+  });
 });
